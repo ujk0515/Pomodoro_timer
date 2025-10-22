@@ -1,0 +1,14 @@
+{
+  "@@locale": "ko",
+  "appTitle": "뽀모도로 타이머",
+  "pomodoro": "뽀모도로",
+  "stopwatch": "스톱워치",
+  "clock": "시계",
+  "start": "시작",
+  "pause": "일시정지",
+  "reset": "초기화",
+  "stop": "정지",
+  "custom": "커스텀",
+  "minutes": "분",
+  "alwaysOnTop": "맨 앞에 고정"
+}

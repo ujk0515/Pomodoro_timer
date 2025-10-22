@@ -1,0 +1,14 @@
+{
+  "@@locale": "en",
+  "appTitle": "Pomodoro Timer",
+  "pomodoro": "Pomodoro",
+  "stopwatch": "Stopwatch",
+  "clock": "Clock",
+  "start": "Start",
+  "pause": "Pause",
+  "reset": "Reset",
+  "stop": "Stop",
+  "custom": "Custom",
+  "minutes": "min",
+  "alwaysOnTop": "Always on Top"
+}
