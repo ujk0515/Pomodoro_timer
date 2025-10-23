@@ -44,6 +44,9 @@ dependencies:
   # Animation
   lottie: ^3.1.0
 
+  # Audio
+  audioplayers: ^6.1.0
+
   # Internationalization
   flutter_localizations:
     sdk: flutter
@@ -86,6 +89,7 @@ flutter:
     - assets/goal_2.png
     - assets/goal_3.png
     - assets/goal_4.png
+    - assets/99AE7C445D542D7F13.mp3
 
   # Localization
   generate: true

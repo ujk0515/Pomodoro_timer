@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../utils/window_flash.dart';
+import '../utils/sound_player.dart';
 import 'running_animation.dart';
 
 class PomodoroTimer extends StatefulWidget {
@@ -54,6 +55,7 @@ class _PomodoroTimerState extends State<PomodoroTimer> with SingleTickerProvider
         } else {
           _stopTimer();
           _flashTaskbar();
+          _playCompletionSound();
           _blinkController.repeat(reverse: true); // 깜빡임 시작
         }
       });
@@ -80,6 +82,7 @@ class _PomodoroTimerState extends State<PomodoroTimer> with SingleTickerProvider
     _timer?.cancel();
     _blinkController.stop();
     _blinkController.reset();
+    SoundPlayer.stopSound(); // 사운드 중지
     setState(() {
       _isRunning = false;
       _remainingSeconds = _totalSeconds;
@@ -90,6 +93,11 @@ class _PomodoroTimerState extends State<PomodoroTimer> with SingleTickerProvider
   void _flashTaskbar() {
     // 작업표시줄 깜빡임
     WindowFlash.flashWindow();
+  }
+
+  void _playCompletionSound() {
+    // 완료 알림음 재생
+    SoundPlayer.playCompletionSound();
   }
 
   void _setPresetTime(int minutes) {
