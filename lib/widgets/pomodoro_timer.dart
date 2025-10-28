@@ -175,15 +175,17 @@ class _PomodoroTimerState extends State<PomodoroTimer> with SingleTickerProvider
     setState(() {
       if (_settingMode == TimerMode.work) {
         _workMinutes = minutes;
-        // 타이머가 시작되지 않았으면 타이머 초기값도 업데이트
-        if (!_isRunning && _remainingSeconds == _totalSeconds) {
-          _totalSeconds = minutes * 60;
-          _remainingSeconds = minutes * 60;
-        }
       } else {
         _restMinutes = minutes;
       }
       _customMinutes = minutes;
+
+      // 타이머가 시작되지 않았으면 타이머 표시 시간도 업데이트
+      if (!_isRunning && _remainingSeconds == _totalSeconds) {
+        final targetMinutes = _settingMode == TimerMode.work ? _workMinutes : _restMinutes;
+        _totalSeconds = targetMinutes * 60;
+        _remainingSeconds = targetMinutes * 60;
+      }
     });
   }
 
@@ -221,10 +223,19 @@ class _PomodoroTimerState extends State<PomodoroTimer> with SingleTickerProvider
   }
 
   Color _getTimerColor() {
-    if (_currentMode == TimerMode.rest) {
-      return Colors.green.shade600; // 쉬는 시간은 초록색
+    // 타이머 실행 중이면 현재 모드 기준
+    if (_isRunning || _remainingSeconds < _totalSeconds) {
+      if (_currentMode == TimerMode.rest) {
+        return Colors.green.shade600; // 쉬는 시간은 초록색
+      }
+      return Colors.deepPurple; // 업무 시간은 보라색
     }
-    return Colors.deepPurple; // 업무 시간은 보라색
+
+    // 타이머 시작 전이면 설정 모드 기준
+    if (_settingMode == TimerMode.rest) {
+      return Colors.green.shade600; // 휴식 설정 화면은 초록색
+    }
+    return Colors.deepPurple; // 업무 설정 화면은 보라색
   }
 
   @override
@@ -500,6 +511,13 @@ class _PomodoroTimerState extends State<PomodoroTimer> with SingleTickerProvider
           _customMinutes = _settingMode == TimerMode.work
               ? _workMinutes
               : _restMinutes;
+
+          // 타이머가 시작되지 않았으면 타이머 표시 시간도 업데이트
+          if (!_isRunning && _remainingSeconds == _totalSeconds) {
+            final targetMinutes = _settingMode == TimerMode.work ? _workMinutes : _restMinutes;
+            _totalSeconds = targetMinutes * 60;
+            _remainingSeconds = targetMinutes * 60;
+          }
         });
       },
       child: Container(
