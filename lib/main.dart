@@ -1,29 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:window_manager/window_manager.dart';
 import 'screens/home_screen.dart';
 import 'l10n/app_localizations.dart';
+
+// 플랫폼별 초기화
+import 'main_desktop.dart' if (dart.library.html) 'main_web.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Window manager 설정
-  await windowManager.ensureInitialized();
-
-  WindowOptions windowOptions = const WindowOptions(
-    size: Size(400, 620),
-    minimumSize: Size(400, 620),
-    maximumSize: Size(400, 620),
-    center: true,
-    backgroundColor: Colors.transparent,
-    skipTaskbar: false,
-    titleBarStyle: TitleBarStyle.hidden,
-  );
-
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.show();
-    await windowManager.focus();
-  });
+  // 플랫폼별 초기화 (Windows는 window_manager, 웹은 아무것도 안함)
+  await initializeDesktop();
 
   runApp(const MyApp());
 }

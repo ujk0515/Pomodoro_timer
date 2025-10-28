@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:window_manager/window_manager.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/pomodoro_timer.dart';
 import '../widgets/stopwatch_widget.dart';
 import '../widgets/clock_widget.dart';
-import '../widgets/custom_title_bar.dart';
+import '../widgets/calendar_widget.dart';
 
-enum AppMode { pomodoro, stopwatch, clock }
+// 플랫폼별 타이틀바
+import '../widgets/custom_title_bar.dart'
+    if (dart.library.html) '../widgets/custom_title_bar_web.dart';
+
+enum AppMode { pomodoro, stopwatch, clock, calendar }
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,7 +18,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with WindowListener, TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _currentIndex = 0;
   bool _isPomodoroRunning = false;
   bool _isPomodoroCompleted = false;
@@ -26,7 +29,6 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener, TickerProv
   @override
   void initState() {
     super.initState();
-    windowManager.addListener(this);
 
     // 깜빡임 애니메이션 컨트롤러 (실행 중)
     _blinkController = AnimationController(
@@ -49,7 +51,6 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener, TickerProv
 
   @override
   void dispose() {
-    windowManager.removeListener(this);
     _blinkController.dispose();
     _rotationController.dispose();
     _completedBlinkController.dispose();
@@ -78,6 +79,8 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener, TickerProv
         return AppMode.stopwatch;
       case 2:
         return AppMode.clock;
+      case 3:
+        return AppMode.calendar;
       default:
         return AppMode.pomodoro;
     }
@@ -86,6 +89,7 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener, TickerProv
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -117,6 +121,12 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener, TickerProv
                   label: l10n.clock,
                   mode: AppMode.clock,
                 ),
+                const SizedBox(width: 20),
+                _buildModeButton(
+                  icon: Icons.calendar_today,
+                  label: locale.languageCode == 'ko' ? '캘린더' : 'Calendar',
+                  mode: AppMode.calendar,
+                ),
               ],
             ),
           ),
@@ -134,6 +144,7 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener, TickerProv
                 ),
                 const StopwatchWidget(),
                 const ClockWidget(),
+                const CalendarWidget(),
               ],
             ),
           ),

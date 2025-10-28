@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 enum AnimationState {
   ready,      // 시작 전 준비 자세
-  running,    // 달리기
+  running,    // 달리기 (업무 중)
   resting,    // 일시정지 휴식
-  completed,  // 완료
+  completed,  // 완료 (골)
+  sleeping,   // 쉬는 시간 (수면)
 }
 
 class RunningAnimation extends StatefulWidget {
@@ -28,7 +29,9 @@ class _RunningAnimationState extends State<RunningAnimation>
       vsync: this,
     );
 
-    if (widget.state == AnimationState.running || widget.state == AnimationState.completed) {
+    if (widget.state == AnimationState.running ||
+        widget.state == AnimationState.completed ||
+        widget.state == AnimationState.sleeping) {
       _controller.repeat();
     } else if (widget.state == AnimationState.resting) {
       _controller.repeat(reverse: true);
@@ -41,6 +44,8 @@ class _RunningAnimationState extends State<RunningAnimation>
         return const Duration(milliseconds: 600); // 달리기 전체 사이클
       case AnimationState.completed:
         return const Duration(milliseconds: 600); // 완료 시에도 달리기 속도
+      case AnimationState.sleeping:
+        return const Duration(milliseconds: 2000); // 수면 zzZ 애니메이션
       case AnimationState.resting:
         return const Duration(milliseconds: 800); // 숨쉬기
       default:
@@ -55,7 +60,9 @@ class _RunningAnimationState extends State<RunningAnimation>
       _controller.stop();
       _controller.duration = _getDuration();
 
-      if (widget.state == AnimationState.running || widget.state == AnimationState.completed) {
+      if (widget.state == AnimationState.running ||
+          widget.state == AnimationState.completed ||
+          widget.state == AnimationState.sleeping) {
         _controller.repeat();
       } else if (widget.state == AnimationState.resting) {
         _controller.repeat(reverse: true);
@@ -116,7 +123,101 @@ class _RunningAnimationState extends State<RunningAnimation>
           height: 60,
           fit: BoxFit.contain,
         );
+      case AnimationState.sleeping:
+        // 쉬는 시간 수면 애니메이션
+        return CustomPaint(
+          size: const Size(60, 60),
+          painter: SleepingPersonPainter(_controller.value),
+        );
     }
+  }
+}
+
+// 수면 애니메이션 (누워서 자는 사람 + zzZ)
+class SleepingPersonPainter extends CustomPainter {
+  final double animationValue;
+
+  SleepingPersonPainter(this.animationValue);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.green.shade600
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    final centerX = size.width / 2;
+    final centerY = size.height / 2;
+
+    // 누워있는 사람
+    // 머리 (왼쪽)
+    canvas.drawCircle(
+      Offset(centerX - 12, centerY + 2),
+      5,
+      paint,
+    );
+
+    // 몸통 (가로로 누움)
+    canvas.drawLine(
+      Offset(centerX - 7, centerY + 2),
+      Offset(centerX + 15, centerY + 2),
+      paint,
+    );
+
+    // 팔 (위쪽, 아래쪽)
+    canvas.drawLine(
+      Offset(centerX - 2, centerY + 2),
+      Offset(centerX - 2, centerY - 3),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(centerX + 8, centerY + 2),
+      Offset(centerX + 8, centerY + 7),
+      paint,
+    );
+
+    // 다리 (오른쪽으로 뻗음)
+    canvas.drawLine(
+      Offset(centerX + 15, centerY + 2),
+      Offset(centerX + 20, centerY + 4),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(centerX + 15, centerY + 2),
+      Offset(centerX + 20, centerY),
+      paint,
+    );
+
+    // zzZ 애니메이션 (위로 올라감)
+    final textPainter = TextPainter(
+      textDirection: TextDirection.ltr,
+    );
+
+    // 3개의 Z를 다른 위치에 그림
+    final zPositions = [
+      Offset(centerX + 10, centerY - 15 - animationValue * 8),
+      Offset(centerX + 15, centerY - 10 - animationValue * 6),
+      Offset(centerX + 20, centerY - 5 - animationValue * 4),
+    ];
+
+    for (int i = 0; i < 3; i++) {
+      textPainter.text = TextSpan(
+        text: 'z',
+        style: TextStyle(
+          color: Colors.green.shade600,
+          fontSize: 12 + i * 2,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+      textPainter.layout();
+      textPainter.paint(canvas, zPositions[i]);
+    }
+  }
+
+  @override
+  bool shouldRepaint(SleepingPersonPainter oldDelegate) {
+    return oldDelegate.animationValue != animationValue;
   }
 }
 
